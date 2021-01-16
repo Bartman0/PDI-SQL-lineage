@@ -2,14 +2,14 @@ package nl.inergy.test.SQLLineage;
 
 import org.jooq.DSLContext;
 import org.jooq.Parser;
+import org.jooq.Query;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.jooq.impl.DefaultConfiguration;
 import org.jooq.impl.DefaultConnectionProvider;
 import org.jooq.impl.DefaultVisitListenerProvider;
 
-import static nl.inergy.test.tools.Tools.properties;
-import static nl.inergy.test.tools.Tools.connection;
+import static nl.inergy.test.tools.Tools.*;
 
 
 public class Main {
@@ -23,6 +23,7 @@ public class Main {
                 .set(new DefaultVisitListenerProvider(listener))
         );
         Parser p = ctx.parser();
-        p.parseQuery("select a, b from c");
+        Query q = p.parseQuery("select * from (select a, b from c) s");
+        print(q.getSQL());
     }
 }

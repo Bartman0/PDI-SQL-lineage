@@ -1,5 +1,6 @@
 package nl.inergy.test.tools;
 
+import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
@@ -57,7 +58,9 @@ public class Tools {
         if (properties == null) {
             try {
                 properties = new Properties();
-                properties.load(Tools.class.getResourceAsStream("/config.properties"));
+                properties.load(new FileReader("src/main/resources/config.properties"));
+//                TODO: waarom werkt dit niet?
+//                properties.load(Tools.class.getResourceAsStream("/config.properties"));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

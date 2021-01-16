@@ -1,11 +1,19 @@
 package nl.inergy.test.SQLLineage;
 
+import static nl.inergy.test.tools.Tools.print;
+
 import org.jooq.Clause;
 import org.jooq.Condition;
 import org.jooq.Field;
 import org.jooq.Operator;
 import org.jooq.QueryPart;
+import org.jooq.Select;
+import org.jooq.SelectField;
+import org.jooq.SelectFieldOrAsterisk;
+import org.jooq.SelectFromStep;
 import org.jooq.Table;
+import org.jooq.TableField;
+import org.jooq.TableLike;
 import org.jooq.VisitContext;
 import org.jooq.impl.DSL;
 import org.jooq.impl.DefaultVisitListener;
@@ -159,6 +167,19 @@ public class QueryParser extends DefaultVisitListener {
                 context.clause() == DELETE ||
                 context.clause() == INSERT) {
             pop(context);
+        }
+    }
+
+    @Override
+    public void visitStart(VisitContext context) {
+        if (context.queryPart() instanceof SelectField) {
+            print("SelectField: " + context.queryPart());
+        }
+        if (context.queryPart() instanceof Table) {
+            print("Table: " + context.queryPart());
+        }
+        if (context.queryPart() instanceof SelectFieldOrAsterisk) {
+            print("SelectFieldOrAsterisk: " + context.queryPart());
         }
     }
 
