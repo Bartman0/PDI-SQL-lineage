@@ -1,3 +1,5 @@
 **/config.properties
 
 .idea/
+
+*.iml
