@@ -2,6 +2,8 @@ package nl.inergy.test.SQLLineage;
 
 import static nl.inergy.test.tools.Tools.print;
 
+import nl.inergy.test.tools.Tools;
+import org.jooq.Asterisk;
 import org.jooq.Clause;
 import org.jooq.Condition;
 import org.jooq.Field;
@@ -19,6 +21,7 @@ import org.jooq.impl.DSL;
 import org.jooq.impl.DefaultVisitListener;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
 
@@ -130,56 +133,60 @@ public class QueryParser extends DefaultVisitListener {
             return result;
     }
 
-    @Override
-    public void clauseStart(VisitContext context) {
-
-        // Enter a new SELECT clause / nested select, or DML statement
-        if (context.clause() == SELECT ||
-                context.clause() == UPDATE ||
-                context.clause() == DELETE ||
-                context.clause() == INSERT) {
-            push(context);
-        }
-    }
-
-    @Override
-    public void clauseEnd(VisitContext context) {
-
-        // Append all collected predicates to the WHERE clause if any
-        if (context.clause() == SELECT_WHERE ||
-                context.clause() == UPDATE_WHERE ||
-                context.clause() == DELETE_WHERE) {
-            List<Condition> conditions = conditions(context);
-
-            if (conditions.size() > 0) {
-                context.context()
-                        .formatSeparator()
-                        .keyword(where(context) ? "and" : "where")
-                        .sql(' ');
-
-                context.context().visit(DSL.condition(Operator.AND, conditions));
-            }
-        }
-
-        // Leave a SELECT clause / nested select, or DML statement
-        if (context.clause() == SELECT ||
-                context.clause() == UPDATE ||
-                context.clause() == DELETE ||
-                context.clause() == INSERT) {
-            pop(context);
-        }
-    }
+//    @Override
+//    public void clauseStart(VisitContext context) {
+//
+//        // Enter a new SELECT clause / nested select, or DML statement
+//        if (context.clause() == SELECT ||
+//                context.clause() == UPDATE ||
+//                context.clause() == DELETE ||
+//                context.clause() == INSERT) {
+//            push(context);
+//        }
+//    }
+//
+//    @Override
+//    public void clauseEnd(VisitContext context) {
+//
+//        // Append all collected predicates to the WHERE clause if any
+//        if (context.clause() == SELECT_WHERE ||
+//                context.clause() == UPDATE_WHERE ||
+//                context.clause() == DELETE_WHERE) {
+//            List<Condition> conditions = conditions(context);
+//
+//            if (conditions.size() > 0) {
+//                context.context()
+//                        .formatSeparator()
+//                        .keyword(where(context) ? "and" : "where")
+//                        .sql(' ');
+//
+//                context.context().visit(DSL.condition(Operator.AND, conditions));
+//            }
+//        }
+//
+//        // Leave a SELECT clause / nested select, or DML statement
+//        if (context.clause() == SELECT ||
+//                context.clause() == UPDATE ||
+//                context.clause() == DELETE ||
+//                context.clause() == INSERT) {
+//            pop(context);
+//        }
+//    }
 
     @Override
     public void visitStart(VisitContext context) {
+        print(context.clause());
+        print(context.context());
+        print("--- SubQuery level: " + context.context().subqueryLevel());
+        print(context.queryPart().getClass());
         if (context.queryPart() instanceof SelectField) {
-            print("SelectField: " + context.queryPart());
+            print("=== SelectField: " + context.queryPart() + ":" + context.queryPartsLength());
         }
         if (context.queryPart() instanceof Table) {
-            print("Table: " + context.queryPart());
+            print("=== Table: " + context.queryPart() + ":" + context.queryPartsLength());
         }
-        if (context.queryPart() instanceof SelectFieldOrAsterisk) {
-            print("SelectFieldOrAsterisk: " + context.queryPart());
+        if (context.queryPart() instanceof Asterisk) {
+            print("=== Asterisk: " + context.queryPart() + ":" + context.queryPartsLength());
         }
     }
 
@@ -187,17 +194,18 @@ public class QueryParser extends DefaultVisitListener {
     public void visitEnd(VisitContext context) {
         //pushConditions(context, ACCOUNTS, ACCOUNTS.ID, ids);
         //pushConditions(context, TRANSACTIONS, TRANSACTIONS.ACCOUNT_ID, ids);
-
+//        print("visit end: " + context.queryPartsLength() + "\n");
+//        Arrays.stream(context.queryParts()).forEach(Tools::print);
         // Check if we're rendering any condition within the WHERE clause
         // In this case, we can be sure that jOOQ will render a WHERE keyword
-        if (context.queryPart() instanceof Condition) {
-            List<Clause> clauses = clauses(context);
-
-            if (clauses.contains(SELECT_WHERE) ||
-                    clauses.contains(UPDATE_WHERE) ||
-                    clauses.contains(DELETE_WHERE)) {
-                where(context, true);
-            }
-        }
+//        if (context.queryPart() instanceof Condition) {
+//            List<Clause> clauses = clauses(context);
+//
+//            if (clauses.contains(SELECT_WHERE) ||
+//                    clauses.contains(UPDATE_WHERE) ||
+//                    clauses.contains(DELETE_WHERE)) {
+//                where(context, true);
+//            }
+//        }
     }
 }
