@@ -1,0 +1,29 @@
+
+
+# JsonHookNotificationType
+
+## Enum
+
+
+* `TYPE_CREATE` (value: `"TYPE_CREATE"`)
+
+* `TYPE_UPDATE` (value: `"TYPE_UPDATE"`)
+
+* `ENTITY_CREATE` (value: `"ENTITY_CREATE"`)
+
+* `ENTITY_PARTIAL_UPDATE` (value: `"ENTITY_PARTIAL_UPDATE"`)
+
+* `ENTITY_FULL_UPDATE` (value: `"ENTITY_FULL_UPDATE"`)
+
+* `ENTITY_DELETE` (value: `"ENTITY_DELETE"`)
+
+* `ENTITY_CREATE_V2` (value: `"ENTITY_CREATE_V2"`)
+
+* `ENTITY_PARTIAL_UPDATE_V2` (value: `"ENTITY_PARTIAL_UPDATE_V2"`)
+
+* `ENTITY_FULL_UPDATE_V2` (value: `"ENTITY_FULL_UPDATE_V2"`)
+
+* `ENTITY_DELETE_V2` (value: `"ENTITY_DELETE_V2"`)
+
+
+
