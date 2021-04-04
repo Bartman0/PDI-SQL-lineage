@@ -26,10 +26,10 @@ public class Factory {
     public Factory() {
     }
 
-    private static Logger logger = LoggerFactory.getLogger(Factory.class);
+    private static final Logger logger = LoggerFactory.getLogger(Factory.class);
 
     private AtlasClientV2 atlasClient;
-    private AtlasTypesDef atlasTypes = new AtlasTypesDef();
+    private final AtlasTypesDef atlasTypes = new AtlasTypesDef();
 
     private AtlasEntityDef createPentahoJobDef() {
         return createClassTypeDef(TypeDefs.PENTAHO_JOB,
@@ -77,7 +77,7 @@ public class Factory {
                 singleton(TypeDefs.SQL_JOB),
                 createRequiredAttrDef(Attributes.NAME, ATLAS_TYPE_STRING),
                 createRequiredAttrDef(Attributes.DESCRIPTION, ATLAS_TYPE_STRING),
-                createRequiredAttrDef(Attributes.SCRIPT, ATLAS_TYPE_STRING
+                createRequiredAttrDef(Attributes.SCRIPT, ATLAS_TYPE_STRING)
         );
     }
 
@@ -97,12 +97,15 @@ public class Factory {
     }
 
     public AtlasTypesDef getTypes() {
-        if (atlasTypes == null) {
+        if (atlasTypes.isEmpty()) {
             AtlasTypesDef typesDef = new AtlasTypesDef(Collections.emptyList(),
                     Collections.emptyList(),
                     Collections.emptyList(),
-                    Arrays.asList(createDatabaseDef(), createTableDef(), createColumnDef(), createPentahoJobDef(), createSqlJobDef(), createSqlStatementDef()),
-                    Arrays.asList(createRelationshipInputToStatementDef(), createRelationshipOutputOfStatementDef(), createRelationshipTableColumnDef(), createRelationshipSqlJobStatementDef())
+                    Arrays.asList(createDatabaseDef(), createTableDef(), createColumnDef(),
+                            createPentahoJobDef(), createSqlJobDef(), createSqlStatementDef()),
+                    Arrays.asList(createRelationshipInputToStatementDef(), createRelationshipOutputOfStatementDef(),
+                            createRelationshipTableColumnDef(), createRelationshipPentahoJobSqlJobDef(),
+                            createRelationshipSqlJobStatementDef())
             );
             for (AtlasEntityDef entityDef : typesDef.getEntityDefs()) {
                 if (atlasClient.typeWithNameExists(entityDef.getName())) {
@@ -127,6 +130,13 @@ public class Factory {
                 "1.0", COMPOSITION, AtlasRelationshipDef.PropagateTags.NONE,
                 createRelationshipEndDef(TypeDefs.TABLE, TypeDefs.COLUMN, SET, true),
                 createRelationshipEndDef(TypeDefs.COLUMN, TypeDefs.TABLE, SINGLE, false));
+    }
+
+    private AtlasRelationshipDef createRelationshipPentahoJobSqlJobDef() {
+        return createRelationshipTypeDef(Relationships.SQL_JOB_PART_OF_PENTAHO_JOB, Relationships.SQL_JOB_PART_OF_PENTAHO_JOB,
+                "1.0", COMPOSITION, AtlasRelationshipDef.PropagateTags.NONE,
+                createRelationshipEndDef(TypeDefs.PENTAHO_JOB, TypeDefs.SQL_JOB, SET, true),
+                createRelationshipEndDef(TypeDefs.SQL_JOB, TypeDefs.PENTAHO_JOB, SINGLE, false));
     }
 
     private AtlasRelationshipDef createRelationshipSqlJobStatementDef() {

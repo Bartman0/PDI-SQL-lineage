@@ -8,5 +8,5 @@ public class Attributes {
     public static final String TEMPORARY        = "temporary";
     public static final String SCRIPT           = "script";
     public static final String QUERY            = "query";
-    public static final String URI =            = "uri";
+    public static final String URI              = "uri";
 }
