@@ -14,12 +14,13 @@ import org.jooq.impl.DefaultVisitListenerProvider;
 
 import org.pentaho.di.core.KettleClientEnvironment;
 import org.pentaho.di.core.KettleEnvironment;
+import org.pentaho.di.core.NotePadMeta;
 import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.exception.KettleXMLException;
 import org.pentaho.di.job.JobHopMeta;
 import org.pentaho.di.job.JobMeta;
 import org.pentaho.di.job.entry.JobEntryCopy;
 
+import java.util.Locale;
 import java.util.Properties;
 
 import static nl.inergy.test.tools.Tools.connection;
@@ -69,10 +70,17 @@ public class Main {
 
         KettleClientEnvironment.getInstance().setClient(KettleClientEnvironment.ClientType.OTHER);
         KettleEnvironment.init();
-        JobMeta jobMeta = new JobMeta("/Users/rkooijman/Documents/Projects/HansAnders/trunk/4-Deployment/etl/scripts/pdi/ej_sap.kjb", null, null);
+        JobMeta jobMeta = new JobMeta("/Users/rkooijman/Documents/Projects/HansAnders/trunk/4-Deployment/etl/scripts/pdi/ej_hourly.kjb", null, null);
+        print(jobMeta.getDescription());
+        for (NotePadMeta note : jobMeta.getNotes()) {
+            if (note.getNote().toUpperCase(Locale.ROOT).startsWith("METADATA:"))
+                print(note.getNote());
+        }
         JobEntryCopy start = jobMeta.getStart();
         for (JobEntryCopy job : jobMeta.getJobCopies()) {
            print(job.getName());
+           print(job.getDescription());
+           print(job.getEntry().getReferencedObjectDescriptions());
         }
         for (JobHopMeta hop : jobMeta.getJobhops()) {
             print(hop.getFromEntry().getName() + " --> " + hop.getToEntry().getName());
