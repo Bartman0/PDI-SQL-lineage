@@ -39,7 +39,7 @@ import static org.jooq.Clause.UPDATE_UPDATE;
 import static org.jooq.Clause.UPDATE_WHERE;
 
 @SuppressWarnings("unchecked")
-public class QueryParser extends DefaultVisitListener {
+public class QueryParserJooq extends DefaultVisitListener {
 
     void push(VisitContext context) {
         conditionStack(context).push(new ArrayList<>());

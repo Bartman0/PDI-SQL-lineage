@@ -28,11 +28,11 @@ import static nl.inergy.test.tools.Tools.print;
 import static nl.inergy.test.tools.Tools.properties;
 
 
-public class Main {
+public class MainJooq {
 
     public static void main(String[] args) throws JSQLParserException, KettleException {
         Properties properties = properties();
-        QueryParser listener = new QueryParser();
+        QueryParserJooq listener = new QueryParserJooq();
         DSLContext ctx = DSL.using(new DefaultConfiguration()
                 .set(SQLDialect.POSTGRES)
                 .set(new DefaultConnectionProvider(connection()))
