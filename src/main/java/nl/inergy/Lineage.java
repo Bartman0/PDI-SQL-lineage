@@ -13,7 +13,9 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -22,30 +24,39 @@ import java.util.List;
 public class Lineage implements Runnable {
 
     @Option(names = {"-s", "--server"}, description = "url of the Apache Atlas/Purview server")
-    URL url;
+    URL url = new URL("http://localhost:21000");
 
     @Option(names = {"-u", "--username"}, description = "user name for the Apache Atlas/Purview server")
-    String username;
+    String username = "admin";
 
     @Option(names = {"-P", "--passwd"}, description = "password for the Apache Atlas/Purview server")
-    String password;
+    String password = "admin";
 
-    @Parameters(index = "0..", description = "the files of Pentaho jobs that need to be processed")
-    private List<File> jobs;
+    @Parameters(index = "0..*", description = "the files of Pentaho jobs that need to be processed")
+    private List<File> jobs = new ArrayList<>();
 
-    public static void main(String[] args) {
+    public Lineage() throws MalformedURLException {
+    }
+
+    public static void main(String[] args) throws MalformedURLException {
         int exitCode = new CommandLine(new Lineage()).execute(args);
         System.exit(exitCode);
     }
 
     @Override
     public void run() {
+        if (jobs.isEmpty()) {
+            System.err.println("no job files specified, exiting...");
+            System.exit(1);
+        }
+
         AtlasClientV2 atlasClient = initAtlas(url, username, password);
         initKettle();
 
         for (File job : jobs) {
             try {
                 final JobParser jobParser = new JobParser(atlasClient, job);
+                jobParser.registerJobToAtlas();
             } catch (KettleXMLException e) {
                 e.printStackTrace();
             }
