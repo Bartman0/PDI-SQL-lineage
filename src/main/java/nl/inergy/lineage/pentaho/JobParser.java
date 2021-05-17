@@ -14,6 +14,8 @@ import java.io.File;
 import java.util.Locale;
 
 public class JobParser {
+    public static final String DOC_PREFIX = "[DOC]:";
+
     private final AtlasClientV2 atlasClient;
     private final File jobFile;
 
@@ -22,16 +24,17 @@ public class JobParser {
         this.jobFile = jobFile;
     }
 
-    public void registerJobToAtlas() throws KettleXMLException {
+    public void registerJobToAtlas() throws KettleXMLException, JSQLParserException {
         JobMeta jobMeta = new JobMeta(jobFile.getName(), null, null);
         registerJobMetaToAtlas(jobMeta);
     }
 
-    private void registerJobMetaToAtlas(JobMeta jobMeta) throws KettleXMLException {
+    private void registerJobMetaToAtlas(JobMeta jobMeta) throws KettleXMLException, JSQLParserException {
         StringBuilder notes = new StringBuilder();
         for (NotePadMeta note : jobMeta.getNotes()) {
-            if (note.getNote().toUpperCase(Locale.ROOT).startsWith("METADATA:")) {
-                notes.append(note.getNote());
+            if (note.getNote().toUpperCase(Locale.ROOT).startsWith(DOC_PREFIX)) {
+                // remove [DOC]: prefix and trim
+                notes.append(note.getNote().substring(DOC_PREFIX.length()).trim());
                 notes.append("\n\n");
             }
         }
@@ -40,7 +43,8 @@ public class JobParser {
             Job atlasJob = new Job(job.getName(), job.getDescription(), job.getEntry().getReferencedObjectDescriptions());
             if (job.getEntry() instanceof JobEntrySQL) {
                 JobEntrySQL entrySQL = (JobEntrySQL) job.getEntry();
-                registerSQLToAtlas(entrySQL.getSQL());
+                atlasJob.setSql(entrySQL.getSQL());
+                registerSqlToAtlas(entrySQL.getSQL());
             }
             if (job.getEntry() instanceof JobEntryJob) {
                 JobMeta subJobMeta = new JobMeta(job.getEntry().getRealFilename(), null, null);
@@ -52,9 +56,9 @@ public class JobParser {
         }
     }
 
-    private void registerSQLToAtlas(String sql) throws JSQLParserException {
+    private void registerSqlToAtlas(String sql) throws JSQLParserException {
         SQLParser parser = new SQLParser(atlasClient, sql);
-        parser.registerSQLToAtlas();
+        parser.registerSqlToAtlas();
     }
 
     private void registerHopMetaToAtlas(String fromEntry, String toEntry) {

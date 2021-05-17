@@ -1,7 +1,6 @@
 package nl.inergy.lineage.sql;
 
 import net.sf.jsqlparser.statement.Statement;
-import net.sf.jsqlparser.util.TablesNamesFinder;
 import java.util.ArrayList;
 import java.util.List;
 

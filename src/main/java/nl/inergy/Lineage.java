@@ -1,5 +1,6 @@
 package nl.inergy;
 
+import net.sf.jsqlparser.JSQLParserException;
 import nl.inergy.atlas.Factory;
 import nl.inergy.lineage.pentaho.JobParser;
 import org.apache.atlas.AtlasClientV2;
@@ -53,14 +54,14 @@ public class Lineage implements Runnable {
         AtlasClientV2 atlasClient = initAtlas(url, username, password);
         initKettle();
 
-        for (File job : jobs) {
+        jobs.forEach(job -> {
             try {
                 final JobParser jobParser = new JobParser(atlasClient, job);
                 jobParser.registerJobToAtlas();
-            } catch (KettleXMLException e) {
+            } catch (KettleXMLException | JSQLParserException e) {
                 e.printStackTrace();
             }
-        }
+        });
     }
 
     private AtlasClientV2 initAtlas(URL url, String username, String password) {
