@@ -1,4 +1,4 @@
-package nl.inergy.test.tools;
+package nl.inergy.utils;
 
 import java.io.FileReader;
 import java.sql.Connection;

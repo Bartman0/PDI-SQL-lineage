@@ -1,39 +1,76 @@
-package nl.inergy.atlas;
+package nl.inergy.lineage.backend;
 
+import net.sf.jsqlparser.JSQLParserException;
+import nl.inergy.lineage.Backend;
+import nl.inergy.lineage.JobParser;
+import nl.inergy.metadata.Attributes;
+import nl.inergy.metadata.Relationships;
+import nl.inergy.metadata.TypeDefs;
 import org.apache.atlas.AtlasClientV2;
+import org.apache.atlas.AtlasServiceException;
 import org.apache.atlas.model.typedef.AtlasBaseTypeDef;
 import org.apache.atlas.model.typedef.AtlasEntityDef;
 import org.apache.atlas.model.typedef.AtlasRelationshipDef;
 import org.apache.atlas.model.typedef.AtlasStructDef;
 import org.apache.atlas.model.typedef.AtlasTypesDef;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.pentaho.di.core.exception.KettleXMLException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 
 import static java.util.Collections.singleton;
+import static nl.inergy.utils.Kettle.initKettle;
 import static org.apache.atlas.model.typedef.AtlasBaseTypeDef.ATLAS_TYPE_BOOLEAN;
 import static org.apache.atlas.model.typedef.AtlasBaseTypeDef.ATLAS_TYPE_STRING;
-import static org.apache.atlas.model.typedef.AtlasRelationshipDef.RelationshipCategory.COMPOSITION;
 import static org.apache.atlas.model.typedef.AtlasRelationshipDef.RelationshipCategory.ASSOCIATION;
+import static org.apache.atlas.model.typedef.AtlasRelationshipDef.RelationshipCategory.COMPOSITION;
 import static org.apache.atlas.model.typedef.AtlasStructDef.AtlasAttributeDef.Cardinality.SET;
 import static org.apache.atlas.model.typedef.AtlasStructDef.AtlasAttributeDef.Cardinality.SINGLE;
 import static org.apache.atlas.type.AtlasTypeUtil.*;
 
-public class Factory {
 
-    public Factory() {
-    }
+public class Atlas extends Backend {
 
-    private static final Logger logger = LoggerFactory.getLogger(Factory.class);
+    private static final Logger logger = LogManager.getLogger(Atlas.class.getName());
 
     private AtlasClientV2 atlasClient;
     private final AtlasTypesDef atlasTypes = new AtlasTypesDef();
 
-    public AtlasClientV2 getClient(String[] urls, String[] authentication) {
+    @Override
+    public void run() {
+        if (jobs.isEmpty()) {
+            System.err.println("no job files specified, exiting...");
+            System.exit(1);
+        }
+
+        atlasClient = init(url, username, password);
+        initKettle();
+
+        jobs.forEach(job -> {
+            try {
+                JobParser jobParser = new JobParser(this, job);
+                jobParser.registerJobToBackend();
+            } catch (KettleXMLException | JSQLParserException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private AtlasClientV2 init(URL url, String username, String password) {
+        AtlasClientV2 client = getClient(url.toString(), username, password);
+        try {
+            client.createAtlasTypeDefs(getTypes());
+        } catch (AtlasServiceException e) {
+            e.printStackTrace();
+        }
+        return client;
+    }
+
+    public AtlasClientV2 getClient(String url, String username, String password) {
         if (atlasClient == null) {
-            atlasClient = new AtlasClientV2(urls, authentication);
+            atlasClient = new AtlasClientV2(new String[]{url}, new String[]{username, password});
         }
         return atlasClient;
     }

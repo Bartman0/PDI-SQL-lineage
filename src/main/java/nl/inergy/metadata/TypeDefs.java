@@ -1,4 +1,4 @@
-package nl.inergy.atlas;
+package nl.inergy.metadata;
 
 public class TypeDefs {
     public static final String PENTAHO_JOB = "PentahoJob";
