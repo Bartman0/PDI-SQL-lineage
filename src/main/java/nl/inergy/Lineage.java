@@ -31,7 +31,8 @@ public class Lineage {
     protected
     List<File> jobs = new ArrayList<>();
 
-    public Lineage() throws MalformedURLException {}
+    public Lineage() throws MalformedURLException {
+    }
 
     public static void main(String[] args) throws MalformedURLException {
         int exitCode = new CommandLine(new Lineage()).execute(args);
