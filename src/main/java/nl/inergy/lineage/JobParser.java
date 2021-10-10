@@ -40,28 +40,35 @@ public class JobParser {
             }
         }
         JobEntryCopy start = jobMeta.getStart();
+        registerStartWithNotes(jobMeta, start, notes.toString());
         for (JobEntryCopy jobEntryCopy : jobMeta.getJobCopies()) {
             Job job = new Job(jobEntryCopy.getName(), jobEntryCopy.getDescription(), jobEntryCopy.getEntry().getReferencedObjectDescriptions());
             if (jobEntryCopy.getEntry() instanceof JobEntrySQL) {
                 JobEntrySQL entrySQL = (JobEntrySQL) jobEntryCopy.getEntry();
                 job.setSql(entrySQL.getSQL());
-                registerSqlToBackend(entrySQL.getSQL());
+                registerSqlJobToBackend(job);
             }
             if (jobEntryCopy.getEntry() instanceof JobEntryJob) {
                 JobMeta subJobMeta = new JobMeta(jobEntryCopy.getEntry().getRealFilename(), null, null);
                 registerJobMetaToBackend(subJobMeta);
             }
         }
-        for (JobHopMeta hop : jobMeta.getJobhops()) {
-            registerHopMetaToBackend(hop.getFromEntry().getName(), hop.getToEntry().getName());
+        for (JobHopMeta jobHopMeta : jobMeta.getJobhops()) {
+            registerHopMetaToBackend(jobMeta, jobHopMeta);
         }
     }
 
-    private void registerSqlToBackend(String sql) throws JSQLParserException {
-        SQLParser parser = new SQLParser(backend, sql);
+    private void registerHopMetaToBackend(JobMeta jobMeta, JobHopMeta jobHopMeta) {
+        backend.registerHop(jobMeta.getName(), jobHopMeta.getFromEntry().getName(), jobHopMeta.getToEntry().getName());
+    }
+
+    private void registerSqlJobToBackend(Job job) throws JSQLParserException {
+        backend.registerSqlJob(job.getName(), job.getSql());
+        SQLParser parser = new SQLParser(this.backend, job.getName(), job.getSql());
         parser.registerSqlToBackend();
     }
 
-    private void registerHopMetaToBackend(String fromEntry, String toEntry) {
+    private void registerStartWithNotes(JobMeta jobMeta, JobEntryCopy start, String notes) {
+        backend.registerStartWithNotes(jobMeta.getName(), start.getName(), notes);
     }
 }

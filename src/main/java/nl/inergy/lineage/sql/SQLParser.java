@@ -10,11 +10,13 @@ import java.util.List;
 
 public class SQLParser {
     private final Backend backend;
+    private final String jobName;
     private final String sql;
     private final HashMap<String, List<String>> tableTargetDependencies = new HashMap<>();
 
-    public SQLParser(Backend backend, String sql) {
+    public SQLParser(Backend backend, String jobName, String sql) {
         this.backend = backend;
+        this.jobName = jobName;
         this.sql = sql;
     }
 
@@ -23,5 +25,6 @@ public class SQLParser {
         Collections.unmodifiableList(parsedStatements.getStatements()).stream()
                 .map(TableDependency::new)
                 .forEach(tableDependency -> tableTargetDependencies.put(tableDependency.getTarget(), tableDependency.getSources()));
+        backend.registerTableDependencies(jobName, tableTargetDependencies);
     }
 }

@@ -12,7 +12,19 @@ public class Job {
         this.referencedObjectDescriptions = referencedObjectDescriptions;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
     public void setSql(String sql) {
         this.sql = sql;
+    }
+
+    public String getSql() {
+        return this.sql;
     }
 }

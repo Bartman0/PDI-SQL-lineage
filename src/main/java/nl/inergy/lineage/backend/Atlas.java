@@ -16,12 +16,12 @@ import org.apache.atlas.model.typedef.AtlasTypesDef;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pentaho.di.core.exception.KettleXMLException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 
 import static java.util.Collections.singleton;
-import static nl.inergy.utils.Kettle.initKettle;
 import static org.apache.atlas.model.typedef.AtlasBaseTypeDef.ATLAS_TYPE_BOOLEAN;
 import static org.apache.atlas.model.typedef.AtlasBaseTypeDef.ATLAS_TYPE_STRING;
 import static org.apache.atlas.model.typedef.AtlasRelationshipDef.RelationshipCategory.ASSOCIATION;
@@ -38,15 +38,12 @@ public class Atlas extends Backend {
     private AtlasClientV2 atlasClient;
     private final AtlasTypesDef atlasTypes = new AtlasTypesDef();
 
+    public Atlas() throws MalformedURLException {
+    }
+
     @Override
     public void run() {
-        if (jobs.isEmpty()) {
-            System.err.println("no job files specified, exiting...");
-            System.exit(1);
-        }
-
         atlasClient = init(url, username, password);
-        initKettle();
 
         jobs.forEach(job -> {
             try {
