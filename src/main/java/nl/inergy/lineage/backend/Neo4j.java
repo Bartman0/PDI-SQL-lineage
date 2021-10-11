@@ -12,7 +12,6 @@ import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
-import org.neo4j.driver.Transaction;
 import org.neo4j.driver.TransactionWork;
 import org.pentaho.di.core.exception.KettleXMLException;
 import java.net.MalformedURLException;
@@ -61,7 +60,6 @@ public class Neo4j extends Backend {
     }
 
     public void registerTableDependencies(String jobName, HashMap<String, List<String>> tableTargetDependencies) {
-        // TODO: relate tables to source tables, and make part of job
         tableTargetDependencies.forEach((target, sources) -> registerTargetAndSources(target, sources));
     }
 
@@ -69,30 +67,33 @@ public class Neo4j extends Backend {
         try (Session session = driver.session()) {
             session.writeTransaction(createTable(target));
             sources.forEach((source) -> session.writeTransaction(createTable(source)));
-            sources.forEach((source) -> session.writeTransaction(createTableSourceRelation(target, source)));
+            sources.forEach((source) -> session.writeTransaction(createTargetSourceRelation(target, source)));
         }
     }
 
-    private TransactionWork<String> createTableSourceRelation(String target, String source) {
+    private TransactionWork<String> createTargetSourceRelation(String target, String source) {
         return tx -> {
-            String query = MessageFormat.format("MERGE (t:{} {name:$target}), " +
+            String query = MessageFormat.format(
+                    "MATCH (t:{} {name:$target}), " +
                     "(s:{} {name:$source}) " +
                     "MERGE (t)-[r:{}]->(s) " +
                     "RETURN id(r)", TypeDefs.TABLE, TypeDefs.TABLE, Relationships.SOURCES_FROM);
             Result result = tx.run(query, parameters("target", target, "source", source));
-            logger.info(MessageFormat.format("registered relation from target {}, id: {}", target, result.single().get(0).asString()));
-            return result.single().get( 0 ).asString();
+            String id = result.single().get(0).asString();
+            logger.info(MessageFormat.format("registered relation from target {}, id: {}", target, id));
+            return id;
         };
     }
 
     private TransactionWork<String> createTable(String target) {
         return tx -> {
-            String query = MessageFormat.format("MERGE (t:{} {name: $name}) " +
-                    "ON CREATE SET t.name = $name " +
+            String query = MessageFormat.format(
+                    "MERGE (t:{} {name: $name}) " +
                     "RETURN id(t)", TypeDefs.TABLE);
             Result result = tx.run(query, parameters("name", target));
-            logger.info(MessageFormat.format("registered table target {}, id: {}", target, result.single().get(0).asString()));
-            return result.single().get( 0 ).asString();
+            String id = result.single().get(0).asString();
+            logger.info(MessageFormat.format("registered table target {}, id: {}", target, id));
+            return id;
         };
     }
 
@@ -101,7 +102,51 @@ public class Neo4j extends Backend {
     }
 
     public void registerStartWithNotes(String jobName, String startName, String notes) {
-        // TODO: relate start to job
+        try (Session session = driver.session()) {
+            session.writeTransaction(createJobWithNotes(jobName, notes));
+            session.writeTransaction(createStartWithNotes(startName, notes));
+            session.writeTransaction(createJobStartRelation(jobName, startName));
+        }
+    }
+
+    private TransactionWork<String> createJobWithNotes(String jobName, String notes) {
+        return tx -> {
+            String query = MessageFormat.format(
+                    "MERGE (j:{} {name: $name}) " +
+                            "ON CREATE SET j.notes = $notes " +
+                            "RETURN id(j)", TypeDefs.PENTAHO_JOB);
+            Result result = tx.run(query, parameters("name", jobName, "notes", notes));
+            String id = result.single().get(0).asString();
+            logger.info(MessageFormat.format("registered job {}, id: {}", jobName, id));
+            return id;
+        };
+    }
+
+    private TransactionWork<String> createStartWithNotes(String startName, String notes) {
+        return tx -> {
+            String query = MessageFormat.format(
+                    "MERGE (s:{} {name: $name}) " +
+                            "ON CREATE SET s.notes = $notes " +
+                            "RETURN id(s)", TypeDefs.PENTAHO_START);
+            Result result = tx.run(query, parameters("name", startName, "notes", notes));
+            String id = result.single().get(0).asString();
+            logger.info(MessageFormat.format("registered start node {}, id: {}", startName, id));
+            return id;
+        };
+    }
+
+    private TransactionWork<String> createJobStartRelation(String jobName, String startName) {
+        return tx -> {
+            String query = MessageFormat.format(
+                    "MATCH (j:{} {name:$job}), " +
+                            "(s:{} {name:$start}) " +
+                            "MERGE (s)-[r:{}]->(j) " +
+                            "RETURN id(r)", TypeDefs.PENTAHO_JOB, TypeDefs.PENTAHO_START, Relationships.PART_OF_PENTAHO_JOB);
+            Result result = tx.run(query, parameters("job", jobName, "start", startName));
+            String id = result.single().get(0).asString();
+            logger.info(MessageFormat.format("registered relation from start {} to {}, id: {}", startName, jobName, id));
+            return id;
+        };
     }
 
     public void registerSqlJob(String jobName, String sql) {
