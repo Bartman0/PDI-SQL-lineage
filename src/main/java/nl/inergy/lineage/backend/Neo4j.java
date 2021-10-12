@@ -47,9 +47,8 @@ public class Neo4j extends Backend {
     }
 
     private Driver init(URL url, String username, String password) {
-        Driver client = getClient(url.toString(), username, password);
         // TODO initialize types?
-        return client;
+        return getClient(url.toString(), username, password);
     }
 
     public Driver getClient(String uri, String username, String password) {
@@ -60,7 +59,7 @@ public class Neo4j extends Backend {
     }
 
     public void registerTableDependencies(String jobName, HashMap<String, List<String>> tableTargetDependencies) {
-        tableTargetDependencies.forEach((target, sources) -> registerTargetAndSources(target, sources));
+        tableTargetDependencies.forEach(this::registerTargetAndSources);
     }
 
     private void registerTargetAndSources(String target, List<String> sources) {
