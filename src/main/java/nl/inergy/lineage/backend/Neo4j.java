@@ -99,6 +99,11 @@ public class Neo4j extends Backend {
 
     public void registerHop(String jobName, String from, String to) {
         // TODO: relate hop to job
+        try (Session session = driver.session()) {
+            session.writeTransaction(createHop(jobName, from, to));
+            session.writeTransaction(createJobHopRelation(jobName, from));
+            session.writeTransaction(createJobHopRelation(jobName, to));
+        }
     }
 
     public void registerStartWithNotes(String jobName, String startName, String notes) {
@@ -141,7 +146,7 @@ public class Neo4j extends Backend {
                     "MATCH (j:{} {name:$job}), " +
                             "(s:{} {name:$start}) " +
                             "MERGE (s)-[r:{}]->(j) " +
-                            "RETURN id(r)", TypeDefs.PENTAHO_JOB, TypeDefs.PENTAHO_START, Relationships.PART_OF_PENTAHO_JOB);
+                            "RETURN id(r)", TypeDefs.PENTAHO_JOB, TypeDefs.PENTAHO_START, Relationships.PART_OF);
             Result result = tx.run(query, parameters("job", jobName, "start", startName));
             String id = result.single().get(0).asString();
             logger.info(MessageFormat.format("registered relation from start {} to {}, id: {}", startName, jobName, id));
@@ -150,6 +155,49 @@ public class Neo4j extends Backend {
     }
 
     public void registerSqlJob(String jobName, String sql) {
-        // TODO: register job with complete sql
+        try (Session session = driver.session()) {
+            session.writeTransaction(createSqlJob(jobName, sql));
+        }
+    }
+
+    public TransactionWork<String> createSqlJob(String jobName, String sql) {
+        return tx -> {
+            String query = MessageFormat.format(
+                    "MERGE (j:{} {name: $name}) " +
+                            "ON CREATE SET j.sql = $sql " +
+                            "RETURN id(j)", TypeDefs.SQL_JOB);
+            Result result = tx.run(query, parameters("name", jobName, "sql", sql));
+            String id = result.single().get(0).asString();
+            logger.info(MessageFormat.format("registered sql job {}, id: {}", jobName, id));
+            return id;
+        };
+    }
+
+    private TransactionWork<String> createHop(String jobName, String from, String to) {
+        return tx -> {
+            String query = MessageFormat.format(
+                    "MATCH (f:{} {name:$from}), " +
+                            "(t:{} {name:$to}) " +
+                            "MERGE (f)-[r:{}]->(t) " +
+                            "RETURN id(r)", TypeDefs.PENTAHO_JOB, TypeDefs.PENTAHO_JOB, Relationships.HOPS_TO);
+            Result result = tx.run(query, parameters("job", jobName, "from", from, "to", to));
+            String id = result.single().get(0).asString();
+            logger.info(MessageFormat.format("registered relation from {} to {}, id: {}", from, to, id));
+            return id;
+        };
+    }
+
+    private TransactionWork<String> createJobHopRelation(String jobName, String hop) {
+        return tx -> {
+            String query = MessageFormat.format(
+                    "MATCH (j:{} {name:$job}), " +
+                            "(h:{} {name:$hop}) " +
+                            "MERGE (h)-[r:{}]->(j) " +
+                            "RETURN id(r)", TypeDefs.PENTAHO_JOB, TypeDefs.PENTAHO_HOP, Relationships.PART_OF);
+            Result result = tx.run(query, parameters("job", jobName, "hop", hop));
+            String id = result.single().get(0).asString();
+            logger.info(MessageFormat.format("registered relation from hop {} to {}, id: {}", hop, jobName, id));
+            return id;
+        };
     }
 }

@@ -163,28 +163,28 @@ public class Atlas extends Backend {
     }
 
     private AtlasRelationshipDef createRelationshipTableColumnDef() {
-        return createRelationshipTypeDef(Relationships.COLUMN_PART_OF_TABLE, Relationships.COLUMN_PART_OF_TABLE,
+        return createRelationshipTypeDef(Relationships.PART_OF, Relationships.PART_OF,
                 "1.0", COMPOSITION, AtlasRelationshipDef.PropagateTags.NONE,
                 createRelationshipEndDef(TypeDefs.TABLE, TypeDefs.COLUMN, SET, true),
                 createRelationshipEndDef(TypeDefs.COLUMN, TypeDefs.TABLE, SINGLE, false));
     }
 
     private AtlasRelationshipDef createRelationshipPentahoJobPentahoJobDef() {
-        return createRelationshipTypeDef(Relationships.PENTAHO_JOB_PART_OF_PENTAHO_JOB, Relationships.PENTAHO_JOB_PART_OF_PENTAHO_JOB,
+        return createRelationshipTypeDef(Relationships.PART_OF, Relationships.PART_OF,
                 "1.0", COMPOSITION, AtlasRelationshipDef.PropagateTags.NONE,
                 createRelationshipEndDef(TypeDefs.PENTAHO_JOB, TypeDefs.PENTAHO_JOB, SET, true),
                 createRelationshipEndDef(TypeDefs.PENTAHO_JOB, TypeDefs.PENTAHO_JOB, SINGLE, false));
     }
 
     private AtlasRelationshipDef createRelationshipPentahoJobSqlJobDef() {
-        return createRelationshipTypeDef(Relationships.SQL_JOB_PART_OF_PENTAHO_JOB, Relationships.SQL_JOB_PART_OF_PENTAHO_JOB,
+        return createRelationshipTypeDef(Relationships.PART_OF, Relationships.PART_OF,
                 "1.0", COMPOSITION, AtlasRelationshipDef.PropagateTags.NONE,
                 createRelationshipEndDef(TypeDefs.PENTAHO_JOB, TypeDefs.SQL_JOB, SET, true),
                 createRelationshipEndDef(TypeDefs.SQL_JOB, TypeDefs.PENTAHO_JOB, SINGLE, false));
     }
 
     private AtlasRelationshipDef createRelationshipSqlJobStatementDef() {
-        return createRelationshipTypeDef(Relationships.STATEMENT_PART_OF_JOB, Relationships.STATEMENT_PART_OF_JOB,
+        return createRelationshipTypeDef(Relationships.PART_OF, Relationships.PART_OF,
                 "1.0", COMPOSITION, AtlasRelationshipDef.PropagateTags.NONE,
                 createRelationshipEndDef(TypeDefs.SQL_JOB, TypeDefs.SQL_STATEMENT, SET, true),
                 createRelationshipEndDef(TypeDefs.SQL_STATEMENT, TypeDefs.SQL_JOB, SINGLE, false));

@@ -8,4 +8,5 @@ public class TypeDefs {
     public static final String COLUMN = "Column";
     public static final String SQL_STATEMENT = "SqlStatement";
     public static final String PENTAHO_START = "PentahoStart";
+    public static final String PENTAHO_HOP = "PentahoHop";
 }
