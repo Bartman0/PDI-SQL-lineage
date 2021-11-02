@@ -16,8 +16,6 @@ import org.apache.atlas.model.typedef.AtlasTypesDef;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pentaho.di.core.exception.KettleXMLException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -38,25 +36,22 @@ public class Atlas extends Backend {
     private AtlasClientV2 atlasClient;
     private final AtlasTypesDef atlasTypes = new AtlasTypesDef();
 
-    public Atlas() throws MalformedURLException {
-    }
-
     @Override
     public void run() {
         atlasClient = init(url, username, password);
 
         jobs.forEach(job -> {
             try {
-                JobParser jobParser = new JobParser(this, job);
-                jobParser.registerJobToBackend();
+                JobParser jobParser = new JobParser(this);
+                jobParser.registerJobToBackend(job);
             } catch (KettleXMLException | JSQLParserException e) {
                 e.printStackTrace();
             }
         });
     }
 
-    private AtlasClientV2 init(URL url, String username, String password) {
-        AtlasClientV2 client = getClient(url.toString(), username, password);
+    private AtlasClientV2 init(String url, String username, String password) {
+        AtlasClientV2 client = getClient(url, username, password);
         try {
             client.createAtlasTypeDefs(getTypes());
         } catch (AtlasServiceException e) {

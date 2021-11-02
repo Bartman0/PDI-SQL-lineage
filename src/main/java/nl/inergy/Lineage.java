@@ -2,8 +2,6 @@ package nl.inergy;
 
 import picocli.CommandLine;
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +10,7 @@ import java.util.List;
 public class Lineage {
 
     @CommandLine.Option(names = {"-s", "--server"}, description = "url of the backend server")
-    public URL url = new URL("http://localhost:21000");
+    public String url = "http://localhost:21000";
 
     @CommandLine.Option(names = {"-u", "--username"}, description = "user name for the backend server")
     public String username = "admin";
@@ -25,7 +23,4 @@ public class Lineage {
 
     @CommandLine.Parameters(index = "0..*", description = "the files of Pentaho jobs that need to be processed")
     public List<File> jobs = new ArrayList<>();
-
-    public Lineage() throws MalformedURLException {
-    }
 }

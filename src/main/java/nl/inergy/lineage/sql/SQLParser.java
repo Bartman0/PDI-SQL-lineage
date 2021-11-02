@@ -24,6 +24,7 @@ public class SQLParser {
         Statements parsedStatements = CCJSqlParserUtil.parseStatements(sql);
         Collections.unmodifiableList(parsedStatements.getStatements()).stream()
                 .map(TableDependency::new)
+                .filter(tableDependency -> tableDependency.getTarget() != null)
                 .forEach(tableDependency -> tableTargetDependencies.put(tableDependency.getTarget(), tableDependency.getSources()));
         backend.registerTableDependencies(jobName, tableTargetDependencies);
     }

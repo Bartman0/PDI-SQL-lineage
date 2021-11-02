@@ -1,10 +1,10 @@
 package nl.inergy.lineage.pentaho;
 
 public class Job {
-    String name;
-    String description;
-    String[] referencedObjectDescriptions;
-    String sql;
+    private final String name;
+    private final String description;
+    private final String[] referencedObjectDescriptions;
+    private String sql;
 
     public Job(String name, String description, String[] referencedObjectDescriptions) {
         this.name = name;

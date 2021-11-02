@@ -8,15 +8,16 @@ import java.util.List;
 // TODO: make abstract class and methods or interface
 public class Backend extends Lineage implements Runnable {
 
-    public Backend() throws MalformedURLException {
-    }
-
     @Override
     public void run() {
         // do nothing
     }
 
     public void registerTableDependencies(String jobName, HashMap<String, List<String>> tableTargetDependencies) {
+        // do nothing
+    }
+
+    public void registerStep(String jobName, String step) {
         // do nothing
     }
 

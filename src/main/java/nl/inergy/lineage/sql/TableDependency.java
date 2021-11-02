@@ -14,9 +14,11 @@ public class TableDependency {
         TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
         List<String> tableList = tablesNamesFinder.getTableList(statement);
         // TODO will this work, or is more intelligence needed that parses out the type of statement?
-        // assume the first table is the target
-        target = tableList.get(0);
-        sources.addAll(tableList.subList(1, tableList.size()));
+        if (tableList.size() > 0) {
+            // assume the first table is the target
+            target = tableList.get(0);
+            sources.addAll(tableList.subList(1, tableList.size()));
+        }
     }
 
     public String getTarget() {
