@@ -7,12 +7,10 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class TableDependency {
-    private final Statement statement;
     private String target = null;
     private final List<String> sources = new ArrayList<>();
 
     public TableDependency(Statement statement) {
-        this.statement = statement;
         TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
         List<String> tableList = tablesNamesFinder.getTableList(statement);
         if (tableList.size() > 0) {
