@@ -15,6 +15,10 @@ import org.pentaho.di.job.entries.sql.JobEntrySQL;
 import org.pentaho.di.job.entry.JobEntryBase;
 import org.pentaho.di.job.entry.JobEntryCopy;
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.Locale;
 
@@ -32,14 +36,14 @@ public class JobParser {
         this.backend = backend;
     }
 
-    public void registerJobToBackend(File jobFile) throws KettleXMLException, JSQLParserException {
+    public void registerJobToBackend(File jobFile) throws KettleXMLException, JSQLParserException, URISyntaxException {
         String jobFileName = jobFile.toPath().toAbsolutePath().toString();
         logger.info(MessageFormat.format("opening file {0}", jobFileName));
         JobMeta jobMeta = new JobMeta(jobFileName, null, null);
         registerJobMetaToBackend(jobMeta);
     }
 
-    private void registerJobMetaToBackend(JobMeta jobMeta) throws KettleXMLException, JSQLParserException {
+    private void registerJobMetaToBackend(JobMeta jobMeta) throws KettleXMLException, JSQLParserException, URISyntaxException {
         StringBuilder notes = new StringBuilder();
         for (NotePadMeta note : jobMeta.getNotes()) {
             if (note.getNote().toUpperCase(Locale.ROOT).startsWith(DOC_PREFIX)) {
@@ -55,6 +59,7 @@ public class JobParser {
             if (jobEntryCopy.getEntry() instanceof JobEntrySQL) {
                 JobEntrySQL entrySQL = (JobEntrySQL) jobEntryCopy.getEntry();
                 copyJobMetaVariablesIntoEntryJobOurselves(jobMeta, entrySQL);
+                copyJobMetaNameIntoVariablesOurselves(jobMeta, entrySQL);
                 String sql = entrySQL.getSQL();
                 try {
                     if (sql == null)
@@ -72,7 +77,12 @@ public class JobParser {
                 JobEntryJob entryJob = (JobEntryJob) jobEntryCopy.getEntry();
                 copyJobMetaVariablesIntoEntryJobOurselves(jobMeta, entryJob);
                 copyParameterValuesIntoEntryJobOurselves(entryJob);
-                logger.info(MessageFormat.format("sub job: opening file {0} for {1}", entryJob.getRealFilename(), entryJob.getName()));
+                if (Paths.get(new URI(entryJob.getRealFilename())).toFile().canRead()) {
+                    logger.info(MessageFormat.format("sub job: opening file {0} for {1}", entryJob.getRealFilename(), entryJob.getName()));
+                } else {
+                    logger.error(MessageFormat.format("sub job: file {0} for {1} can not be read", entryJob.getRealFilename(), entryJob.getName()));
+                    continue;
+                }
                 JobMeta subJobMeta = new JobMeta(entryJob.getRealFilename(), null);
                 subJobMeta.setName(entryJob.getName());     // copy the name from the entry to the sub job metadata
                 registerJobMetaToBackend(subJobMeta);
@@ -103,6 +113,10 @@ public class JobParser {
             String value = entryJob.parameterValues[i];
             entryJob.setVariable(var, value);
         }
+    }
+
+    private void copyJobMetaNameIntoVariablesOurselves(JobMeta jobMeta, JobEntrySQL entrySQL) {
+        entrySQL.setVariable("sql_script_name", jobMeta.getName());
     }
 
     private void registerHopMetaToBackend(JobMeta jobMeta, JobHopMeta jobHopMeta) {

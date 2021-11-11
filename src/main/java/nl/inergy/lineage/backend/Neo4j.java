@@ -14,6 +14,7 @@ import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.TransactionWork;
 import org.pentaho.di.core.exception.KettleXMLException;
+import java.net.URISyntaxException;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +36,7 @@ public class Neo4j extends Backend {
             try {
                 JobParser jobParser = new JobParser(this);
                 jobParser.registerJobToBackend(job);
-            } catch (KettleXMLException | JSQLParserException e) {
+            } catch (KettleXMLException | JSQLParserException | URISyntaxException e) {
                 e.printStackTrace();
             }
         });
@@ -75,7 +76,7 @@ public class Neo4j extends Backend {
                     "RETURN id(r)", TypeDefs.TABLE, Relationships.SOURCES_FROM);
             Result result = tx.run(query, parameters("target", target, "source", source));
             String id = String.valueOf(result.single().get(0));
-            logger.info(MessageFormat.format("registered relation from target {0}, id: {1}", target, id));
+            logger.info(MessageFormat.format("registered relation from target {0} to source {1}, id: {2}", target, source, id));
             return id;
         };
     }

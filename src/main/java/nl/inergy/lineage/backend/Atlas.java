@@ -16,6 +16,7 @@ import org.apache.atlas.model.typedef.AtlasTypesDef;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pentaho.di.core.exception.KettleXMLException;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -44,7 +45,7 @@ public class Atlas extends Backend {
             try {
                 JobParser jobParser = new JobParser(this);
                 jobParser.registerJobToBackend(job);
-            } catch (KettleXMLException | JSQLParserException e) {
+            } catch (KettleXMLException | JSQLParserException | URISyntaxException e) {
                 e.printStackTrace();
             }
         });
