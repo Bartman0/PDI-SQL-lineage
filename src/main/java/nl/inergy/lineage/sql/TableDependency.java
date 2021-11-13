@@ -1,14 +1,15 @@
 package nl.inergy.lineage.sql;
 
 import net.sf.jsqlparser.statement.Statement;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class TableDependency {
     private String target = null;
-    private final List<String> sources = new ArrayList<>();
+    private final Set<String> sources = new HashSet<>();
 
     public TableDependency(Statement statement) {
         TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
@@ -35,7 +36,7 @@ public class TableDependency {
         return target;
     }
 
-    public List<String> getSources() {
+    public Set<String> getSources() {
         return sources;
     }
 }

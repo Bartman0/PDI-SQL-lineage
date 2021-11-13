@@ -17,7 +17,7 @@ import org.pentaho.di.core.exception.KettleXMLException;
 import java.net.URISyntaxException;
 import java.text.MessageFormat;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Set;
 
 import static org.neo4j.driver.Values.parameters;
 
@@ -53,11 +53,11 @@ public class Neo4j extends Backend {
         return driver;
     }
 
-    public void registerTableDependencies(String jobName, HashMap<String, List<String>> tableTargetDependencies) {
+    public void registerTableDependencies(String jobName, HashMap<String, Set<String>> tableTargetDependencies) {
         tableTargetDependencies.forEach((target, sources) -> registerTargetAndSources(jobName, target, sources));
     }
 
-    private void registerTargetAndSources(String jobName, String target, List<String> sources) {
+    private void registerTargetAndSources(String jobName, String target, Set<String> sources) {
         try (Session session = driver.session()) {
             session.writeTransaction(createTable(target));
             session.writeTransaction(createJobTableRelation(jobName, target));
@@ -234,7 +234,7 @@ public class Neo4j extends Backend {
             String query = MessageFormat.format(
                     "MATCH (j:{0} '{name:$job}'), " +
                             "(s:{1} '{name:$step}') " +
-                            "MERGE (h)-[r:{2}]->(j) " +
+                            "MERGE (s)-[r:{2}]->(j) " +
                             "RETURN id(r)", TypeDefs.PENTAHO_JOB, type, Relationships.PART_OF);
             Result result = tx.run(query, parameters("job", jobName, "step", step));
             String id = String.valueOf(result.single().get(0));

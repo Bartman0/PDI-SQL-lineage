@@ -17,10 +17,12 @@ import org.pentaho.di.job.entry.JobEntryCopy;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.Locale;
+import java.util.stream.Stream;
+
+// TODO: model logic for naming objects into model itself (jobMeta.getName() + "/" + entryJob.getName())
 
 public class JobParser {
 
@@ -68,6 +70,7 @@ public class JobParser {
                         continue;
                 }
                 catch (KettleDatabaseException e) {
+                    logger.error(MessageFormat.format("error reading SQL from file, context {0}", entrySQL.getParentJobMeta().getName()));
                     continue;
                 }
                 job.setSql(sql);
@@ -84,7 +87,7 @@ public class JobParser {
                     continue;
                 }
                 JobMeta subJobMeta = new JobMeta(entryJob.getRealFilename(), null);
-                subJobMeta.setName(entryJob.getName());     // copy the name from the entry to the sub job metadata
+                subJobMeta.setName(jobMeta.getName() + "/" + entryJob.getName());     // copy the name from the job and entry to the sub job metadata
                 registerJobMetaToBackend(subJobMeta);
             }
         }
@@ -116,7 +119,8 @@ public class JobParser {
     }
 
     private void copyJobMetaNameIntoVariablesOurselves(JobMeta jobMeta, JobEntrySQL entrySQL) {
-        entrySQL.setVariable("sql_script_name", jobMeta.getName());
+        String lastPart = Stream.of(jobMeta.getName().split("/")).reduce((first, last)->last).get();
+        entrySQL.setVariable("sql_script_name", lastPart);
     }
 
     private void registerHopMetaToBackend(JobMeta jobMeta, JobHopMeta jobHopMeta) {
@@ -131,8 +135,8 @@ public class JobParser {
 
     private void registerSqlJobToBackend(Job job) throws JSQLParserException {
         backend.registerSqlJob(job.getName(), job.getSql());
-        SQLParser parser = new SQLParser(this.backend, job.getName(), job.getSql());
-        parser.registerSqlToBackend();
+        SQLParser parser = new SQLParser(this.backend, job.getName());
+        parser.registerSqlToBackend(job.getSql());
     }
 
     private void registerStartWithNotes(JobMeta jobMeta, JobEntryCopy start, String notes) {

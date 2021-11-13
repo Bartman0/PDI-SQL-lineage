@@ -4,6 +4,7 @@ import nl.inergy.Lineage;
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 // TODO: make abstract class and methods or interface
 public class Backend extends Lineage implements Runnable {
@@ -13,7 +14,7 @@ public class Backend extends Lineage implements Runnable {
         // do nothing
     }
 
-    public void registerTableDependencies(String jobName, HashMap<String, List<String>> tableTargetDependencies) {
+    public void registerTableDependencies(String jobName, HashMap<String, Set<String>> tableTargetDependencies) {
         // do nothing
     }
 
