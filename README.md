@@ -41,6 +41,11 @@ This all means that to use this code in your context, you might need to have to 
 - extend lineage by adding MicroStrategy schema object details: used tables, column aliases, attributes and metrics
 - extend lineage to the column level
 
+# Major packages used
+
+* [Pentaho-Kettle](https://github.com/pentaho/pentaho-kettle) for parsing out Kettle jobs.
+* [JSQLParser](https://github.com/JSQLParser/JSqlParser) for parsing out SQL code.
+
 # Last remarks
 
 References to Purview still exist in this code. Originally I started this project with Purview as backend in my mind. But at a certain point it just seemed easier to just use Neo4j. This means any visualisation power that Purview might have, can not be used on the lineage graphs. I am still searching for a good alternative for the specific visualisation part. Neo4j Browser is too simple for this. 
