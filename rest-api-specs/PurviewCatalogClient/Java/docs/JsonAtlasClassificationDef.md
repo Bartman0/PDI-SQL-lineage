@@ -1,0 +1,30 @@
+
+
+# JsonAtlasClassificationDef
+
+class that captures details of a classification-type.
+## Properties
+
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**category** | **JsonTypeCategory** |  |  [optional]
+**createTime** | **BigDecimal** | The created time of the record. |  [optional]
+**createdBy** | **String** | The user who created the record. |  [optional]
+**dateFormatter** | [**JsonDateFormat**](JsonDateFormat.md) |  |  [optional]
+**description** | **String** | The description of the type definition. |  [optional]
+**guid** | **String** | The GUID of the type definition. |  [optional]
+**name** | **String** | The name of the type definition. |  [optional]
+**options** | **Map&lt;String, String&gt;** | The options for the type definition. |  [optional]
+**serviceType** | **String** | The service type. |  [optional]
+**typeVersion** | **String** | The version of the type. |  [optional]
+**updateTime** | **BigDecimal** | The update time of the record. |  [optional]
+**updatedBy** | **String** | The user who updated the record. |  [optional]
+**version** | **BigDecimal** | The version of the record. |  [optional]
+**lastModifiedTS** | **String** | ETag for concurrency control. |  [optional]
+**attributeDefs** | [**List&lt;JsonAtlasAttributeDef&gt;**](JsonAtlasAttributeDef.md) | An array of attribute definitions. |  [optional]
+**entityTypes** | **List&lt;String&gt;** | Specifying a list of entityType names in the classificationDef, ensures that classifications can only be applied to those entityTypes. &lt;ul&gt; &lt;li&gt;Any subtypes of the entity types inherit the restriction&lt;/li&gt; &lt;li&gt;Any classificationDef subtypes inherit the parents entityTypes restrictions&lt;/li&gt; &lt;li&gt;Any classificationDef subtypes can further restrict the parents entityTypes restrictions by specifying a subset of the entityTypes&lt;/li&gt; &lt;li&gt;An empty entityTypes list when there are no parent restrictions means there are no restrictions&lt;/li&gt; &lt;li&gt;An empty entityTypes list when there are parent restrictions means that the subtype picks up the parents restrictions&lt;/li&gt; &lt;li&gt;If a list of entityTypes are supplied, where one inherits from another, this will be rejected. This should encourage cleaner classificationsDefs&lt;/li&gt; &lt;/ul&gt; |  [optional]
+**subTypes** | **List&lt;String&gt;** | An array of sub types. |  [optional]
+**superTypes** | **List&lt;String&gt;** | An array of super types. |  [optional]
+
+
+
