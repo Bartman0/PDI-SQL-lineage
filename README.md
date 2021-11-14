@@ -32,3 +32,11 @@ The names of those variables:
 - sql_script_name: the name of the SQL script name to use in SQL components that have a file reference such as `${project_root_dir}/sql/da/${Internal.Job.Name}.sql`
 
 I had to use these hacks because I could not find a way to have these variables set by using Pentaho DI API calls. Maybe they are there, but I could find them. And since this was a PoC I found it acceptable to work around these dependencies we rely upon.
+This all means that to use this code in your context, you might need to have to extend these hacks for 'your' specific variables/parameters.
+
+# Next steps
+
+- add graph queries to output information on the resulting lineage
+- extend lineage by adding Tableau datasource details: used tables, column aliases, calculated fields
+- extend lineage by adding MicroStrategy schema object details: used tables, column aliases, attributes and metrics
+- extend lineage to the column level
