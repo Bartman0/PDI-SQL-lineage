@@ -12,7 +12,14 @@ This part should be easy, I use a Docker image myself for this:
 ```
 docker run -it --rm --publish=7474:7474 --publish=7687:7687 --volume=$HOME/neo4j/data:/data --env NEO4J_AUTH=neo4j/<password> neo4j
 ```
-Please fill in a password of your own chosing. The database itself is simply named 'neo4j'.
+
+with APOC package:
+
+```
+docker run -it --rm --publish=7474:7474 --publish=7687:7687 --volume=$HOME/neo4j/data:/data --env NEO4J_AUTH=neo4j/k00ijman --name neo4j-apoc -e NEO4J_apoc_export_file_enabled=true -e NEO4J_apoc_import_file_enabled=true -e NEO4J_apoc_import_file_use__neo4j__config=true -e NEO4JLABS_PLUGINS=\[\"apoc\"\] neo4j
+```
+
+Please fill in a password of your own choosing. The database itself is simply named 'neo4j'.
 For more information see [How-To: Run Neo4j in Docker](https://neo4j.com/developer/docker-run-neo4j/).
 
 
@@ -31,7 +38,7 @@ The names of those variables:
 - project_root_dir: essentially the same as `${Internal.Job.Filename.Directory}` appended with `/etl/` subdirectory
 - sql_script_name: the name of the SQL script name to use in SQL components that have a file reference such as `${project_root_dir}/sql/da/${Internal.Job.Name}.sql`
 
-I had to use these hacks because I could not find a way to have these variables set by using Pentaho DI API calls. Maybe they are there, but I could find them. And since this was a PoC I found it acceptable to work around these dependencies we rely upon.
+I had to use these hacks because I could not find a way to have these variables set by using Pentaho DI API calls. Maybe they are there, but they remain unknown to me. And since this was a PoC I found it acceptable to work around these dependencies we rely upon.
 This all means that to use this code in your context, you might need to have to extend these hacks for 'your' specific variables/parameters.
 
 # Next steps
